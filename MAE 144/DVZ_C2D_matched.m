@@ -40,11 +40,11 @@ Gs = RR_tf(bs, as);
 
 % Convert Poles and Zeros to the z domain
 for i = 1:length(Gs.p)
-    p_zd(i) = exp(Gs.p(i)*h);
+    p_zd(i) = exp(Gs.p(i).*h);
 end
 
 for i = 1:length(Gs.z)
-    z_zd(i) = exp(Gs.z(i)*h);
+    z_zd(i) = exp(Gs.z(i).*h);
 end
 
 % Create new transfer function 
