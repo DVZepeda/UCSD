@@ -1,4 +1,4 @@
-function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
+function Gz = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 % Convert a continuous-time transfer function D(s) to a discrete-time
 % transfer function D(z) using the matched z-transform method.
 %
@@ -25,7 +25,7 @@ function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   as = s * (s + p1);
 %   h = 0.1;
 %   omega_bar = 1;  % Example frequency of interest
-%   causal_type = 'semi-causal';  % or 'strictly-causal'
+%   causal_type = 0 %'semi-causal' or (1) 'strictly-causal'
 %   [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar, causal_type);
 
 % set values for variables if, they weren't included
@@ -69,33 +69,10 @@ end
 ks = i*omega_bar;
 DC_gains = RR_evaluate(Gs,ks);
 
-DC_gainz = RR_evaluate(Gz,exp(i*omega_bar*h))
+DC_gainz = RR_evaluate(Gz,exp(i*omega_bar*h));
 
+kz = DC_gains/DC_gainz;
 
+Gz.K = Gz.K * kz;
 
-
-% % Map poles and finite zeros
-% az = subs(as, sym('s'), log(sym('z'))/h);
-% bz = subs(bs, sym('s'), log(sym('z'))/h);
-% 
-% % Map infinite zeros
-% if strcmp(causal_type, 'strictly-causal')
-%     % Map an infinite zero to z = ∞
-%     bz = subs(bz, sym('z'), inf);
-% else
-%     % Map infinite zeros to z = -1
-%     bz = subs(bz, sym('z'), -1);
-% end
-% 
-% % Set gain at omega_bar
-% if nargin > 3
-%     az_at_omega = subs(as, sym('s'), 1i*omega_bar);
-%     bz_at_omega = subs(bs, sym('s'), 1i*omega_bar);
-%     gain_ratio = abs(bz_at_omega) / abs(az_at_omega);
-%     bz = bz * gain_ratio;
-% end
-% 
-% % Simplify the resulting transfer function
-% [bz, az] = RationalSimplify(bz, az);
-% 
-% end
+end

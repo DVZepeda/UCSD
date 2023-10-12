@@ -1,4 +1,4 @@
-function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
+function Gz = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 % Convert a continuous-time transfer function D(s) to a discrete-time
 % transfer function D(z) using the matched z-transform method.
 %
@@ -10,8 +10,7 @@ function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   causal_type - 'semi-causal' (0) or 'strictly-causal' (1) (optional, default: 'semi-causal')
 %
 % OUTPUTS:
-%   bz - Numerator coefficients of D(z)
-%   az - Denominator coefficients of D(z)
+%   Gz - Transfer function G(z)
 %
 % NOTES:
 %   - Supports symbolic variables in bs and as.
@@ -25,8 +24,8 @@ function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   as = s * (s + p1);
 %   h = 0.1;
 %   omega_bar = 1;  % Example frequency of interest
-%   causal_type = 'semi-causal';  % or 'strictly-causal'
-%   [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar, causal_type);
+%   causal_type = 0 %'semi-causal' or (1) 'strictly-causal'
+%   Gz = DVZ_C2D_matched(bs, as, h, omega_bar, causal_type);
 
 % set values for variables if, they weren't included
 if nargin == 3
