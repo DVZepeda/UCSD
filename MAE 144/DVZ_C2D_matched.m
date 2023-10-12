@@ -7,7 +7,7 @@ function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   as - Denominator in the RR_poly Class
 %   h - Time step
 %   omega_bar - Frequency of interest (optional, default: 0)
-%   causal_type - 'semi-causal' or 'strictly-causal' (optional, default: 'semi-causal')
+%   causal_type - 'semi-causal' (0) or 'strictly-causal' (1) (optional, default: 'semi-causal')
 %
 % OUTPUTS:
 %   bz - Numerator coefficients of D(z)
@@ -28,6 +28,14 @@ function [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   causal_type = 'semi-causal';  % or 'strictly-causal'
 %   [bz, az] = DVZ_C2D_matched(bs, as, h, omega_bar, causal_type);
 
+% set values for variables if, they weren't included
+if nargin == 3
+    omega_bar = 0;
+    causal_type = 0;
+elseif nargin == 4
+    causal_type = 0;
+end
+
 % Create the Transfer Function G(s)
 Gs = RR_tf(bs, as);
 
@@ -40,40 +48,31 @@ for i = 1:length(Gs.z)
     z_zd(i) = exp(Gs.z(i)*h);
 end
 
-% convert back to RR_poly class
-p_zd = RR_poly(p_zd)
-z_zd = RR_poly(z_zd)
+% Create new transfer function 
+Gz = RR_tf(z_zd,p_zd,1)
 
+% Assign Number of zeros at infinity
+r = length(Gz.p) - length(Gz.z)
 
+% Adjust number of infinite zeros added to D(z)
+if causal_type == 1
+    r = r-1;
+end
 
+% add the infinite zeros
+if r > 0
+    for i = 1:r
+        Gz.z(length(Gz.z)+i) = -1;
+    end
+end
+% Calculate the Gain Given the omega_bar value
+ks = i*omega_bar;
+DC_gains = RR_evaluate(Gs,ks);
 
+DC_gainz = RR_evaluate(Gz,exp(i*omega_bar*h));
 
+kz = DC_gains/DC_gainz;
 
+Gz.K = Gz.K * kz;
 
-
-
-% % Map poles and finite zeros
-% az = subs(as, sym('s'), log(sym('z'))/h);
-% bz = subs(bs, sym('s'), log(sym('z'))/h);
-% 
-% % Map infinite zeros
-% if strcmp(causal_type, 'strictly-causal')
-%     % Map an infinite zero to z = ∞
-%     bz = subs(bz, sym('z'), inf);
-% else
-%     % Map infinite zeros to z = -1
-%     bz = subs(bz, sym('z'), -1);
-% end
-% 
-% % Set gain at omega_bar
-% if nargin > 3
-%     az_at_omega = subs(as, sym('s'), 1i*omega_bar);
-%     bz_at_omega = subs(bs, sym('s'), 1i*omega_bar);
-%     gain_ratio = abs(bz_at_omega) / abs(az_at_omega);
-%     bz = bz * gain_ratio;
-% end
-% 
-% % Simplify the resulting transfer function
-% [bz, az] = RationalSimplify(bz, az);
-% 
-% end
+end
