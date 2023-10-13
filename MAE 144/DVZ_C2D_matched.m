@@ -20,8 +20,8 @@ function Gz = DVZ_C2D_matched(bs, as, h, omega_bar,causal_type)
 %   
 % Example usage:
 %   syms s z z1 p1;
-%   bs = s + z1;
-%   as = s * (s + p1);
+%   bs = RR_poly([1 z1]);
+%   as = RR_poly([1 p1 0]);
 %   h = 0.1;
 %   omega_bar = 1;  % Example frequency of interest
 %   causal_type = 0 %'semi-causal' or (1) 'strictly-causal'
@@ -45,6 +45,7 @@ z_zd = [];
 for i = 1:length(Gs.p)
     p_zd(i) = exp(Gs.p(i).*h);
 end
+
 
 for i = 1:length(Gs.z)
     z_zd(i) = exp(Gs.z(i).*h);
