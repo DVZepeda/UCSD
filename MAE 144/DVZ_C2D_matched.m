@@ -38,6 +38,9 @@ end
 % Create the Transfer Function G(s)
 Gs = RR_tf(bs, as);
 
+p_zd = [];
+z_zd = [];
+
 % Convert Poles and Zeros to the z domain
 for i = 1:length(Gs.p)
     p_zd(i) = exp(Gs.p(i).*h);
